@@ -1,0 +1,12 @@
+[project]
+name = "trajectory-executor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "genesis-world",
+    "loop-rate-limiters>=1.1.0",
+    "mujoco>=3.2.4",
+    "numpy>=1.6.24",
+]
