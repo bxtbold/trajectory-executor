@@ -16,6 +16,11 @@ class RobotArmTrajectoryExecutor:
         self.feedback_callback = feedback_callback
         self.on_feedback = on_feedback
         self.loop_rate = RateLimiter(loop_rate_hz)
+        self.has_callbacks = {
+            "update": update_callback is not None,
+            "feedback": feedback_callback is not None,
+            "on_feedback": on_feedback is not None,
+        }
 
     def _interpolate(self, t: float) -> List[float]:
         for i in range(len(self.trajectory) - 1):
@@ -39,27 +44,21 @@ class RobotArmTrajectoryExecutor:
             if current_time > end_time:
                 break
 
-            # Compute command
-            joint_cmd = self._interpolate(current_time)
-
-            # Send command
-            if self.update_callback:
+            # Compute and send command
+            joint_cmd = self._interpolate(current_time, traj, times)
+            if self.has_callbacks["update"]:
                 self.update_callback(joint_cmd)
 
-            # Read feedback
-            joint_feedback = (
-                self.feedback_callback() if self.feedback_callback else None
-            )
-
-            # Run feedback hook
-            if self.on_feedback and joint_feedback is not None:
+            # Handle feedback
+            if self.has_callbacks["feedback"] and self.has_callbacks["on_feedback"]:
+                joint_feedback = self.feedback_callback()
                 self.on_feedback(joint_cmd, joint_feedback, current_time)
 
             self.loop_rate.sleep()
 
         # Send final command
-        if self.update_callback:
-            self.update_callback(self.trajectory[-1][1])
+        if self.has_callbacks["update"]:
+            self.update_callback(traj[-1].tolist())
 
 
 if __name__ == "__main__":
