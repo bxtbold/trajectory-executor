@@ -1,7 +1,7 @@
 import time
-from typing import List, Tuple, Callable, Optional
 import numpy as np
-
+from typing import List, Tuple, Callable, Optional
+from loop_rate_limiters import RateLimiter
 
 class RobotArmTrajectoryExecutor:
     def __init__(
@@ -16,7 +16,7 @@ class RobotArmTrajectoryExecutor:
         self.update_callback = update_callback
         self.feedback_callback = feedback_callback
         self.on_feedback = on_feedback
-        self.loop_rate = 1.0 / loop_rate_hz
+        self.loop_rate = RateLimiter(loop_rate_hz)
 
     def _interpolate(self, t: float) -> List[float]:
         for i in range(len(self.trajectory) - 1):
@@ -52,7 +52,7 @@ class RobotArmTrajectoryExecutor:
             if self.on_feedback and joint_feedback is not None:
                 self.on_feedback(joint_cmd, joint_feedback, current_time)
 
-            time.sleep(self.loop_rate)
+            self.loop_rate.sleep()
 
         # Send final command
         if self.update_callback:
