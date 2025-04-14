@@ -3,16 +3,15 @@ import numpy as np
 from typing import List, Tuple, Callable, Optional
 from loop_rate_limiters import RateLimiter
 
+
 class RobotArmTrajectoryExecutor:
     def __init__(
         self,
-        trajectory: List[Tuple[float, List[float]]],
         update_callback: Optional[Callable[[List[float]], None]] = None,
         feedback_callback: Optional[Callable[[], List[float]]] = None,
         on_feedback: Optional[Callable[[List[float], List[float], float], None]] = None,
         loop_rate_hz: float = 50.0,
     ):
-        self.trajectory = sorted(trajectory, key=lambda x: x[0])
         self.update_callback = update_callback
         self.feedback_callback = feedback_callback
         self.on_feedback = on_feedback
@@ -28,8 +27,12 @@ class RobotArmTrajectoryExecutor:
                 return q_interp.tolist()
         return self.trajectory[-1][1]
 
-    def start(self):
+    def execute(
+        self,
+        trajectory: List[Tuple[float, List[float]]],
+    ):
         start_time = time.time()
+        self.trajectory = sorted(trajectory, key=lambda x: x[0])
         end_time = self.trajectory[-1][0]
         while True:
             current_time = time.time() - start_time
@@ -77,13 +80,11 @@ if __name__ == "__main__":
         error = np.linalg.norm(np.array(cmd) - np.array(feedback))
         print(f"[{t:.2f}s] Error: {error:.4f}")
 
-    traj = [(0.0, [0.0, 0.0, 0.0]), (1.5, [0.5, 0.5, 0.5]), (3.0, [1.0, 1.0, 1.0])]
-
-    executor = RobotArmTrajectoryExecutor(
-        trajectory=traj,
+    traj_executor = RobotArmTrajectoryExecutor(
         update_callback=send_command,
         feedback_callback=fake_feedback,
         on_feedback=monitor,
     )
 
-    executor.start()
+    traj = [(0.0, [0.0, 0.0, 0.0]), (1.5, [0.5, 0.5, 0.5]), (3.0, [1.0, 1.0, 1.0])]
+    traj_executor.execute(traj)
