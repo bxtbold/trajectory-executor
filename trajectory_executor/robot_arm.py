@@ -2,6 +2,7 @@ import time
 import numpy as np
 from typing import List, Tuple, Callable, Optional
 from loop_rate_limiters import RateLimiter
+import threading
 
 
 class RobotArmTrajectoryExecutor:
@@ -21,6 +22,7 @@ class RobotArmTrajectoryExecutor:
             "feedback": feedback_callback is not None,
             "on_feedback": on_feedback is not None,
         }
+        self._lock = threading.Lock()  # Lock for thread-safe access to shared resources
 
     def _interpolate(self, t: float) -> List[float]:
         for i in range(len(self.trajectory) - 1):
@@ -44,21 +46,25 @@ class RobotArmTrajectoryExecutor:
             if current_time > end_time:
                 break
 
-            # Compute and send command
+            # Compute command
             joint_cmd = self._interpolate(current_time, traj, times)
-            if self.has_callbacks["update"]:
-                self.update_callback(joint_cmd)
 
-            # Handle feedback
-            if self.has_callbacks["feedback"] and self.has_callbacks["on_feedback"]:
-                joint_feedback = self.feedback_callback()
-                self.on_feedback(joint_cmd, joint_feedback, current_time)
+            # Thread-safe callback execution
+            with self._lock:
+                if self.has_callbacks["update"]:
+                    self.update_callback(joint_cmd)
+
+                # Handle feedback
+                if self.has_callbacks["feedback"] and self.has_callbacks["on_feedback"]:
+                    joint_feedback = self.feedback_callback()
+                    self.on_feedback(joint_cmd, joint_feedback, current_time)
 
             self.loop_rate.sleep()
 
-        # Send final command
-        if self.has_callbacks["update"]:
-            self.update_callback(traj[-1].tolist())
+        # Send final command thread-safely
+        with self._lock:
+            if self.has_callbacks["update"]:
+                self.update_callback(traj[-1].tolist())
 
 
 if __name__ == "__main__":
