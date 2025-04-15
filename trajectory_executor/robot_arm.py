@@ -17,6 +17,7 @@ class RobotArmTrajectoryExecutor:
         self.feedback_callback = feedback_callback
         self.on_feedback = on_feedback
         self.loop_rate = RateLimiter(loop_rate_hz)
+        self.trajectory = []
         self.has_callbacks = {
             "update": update_callback is not None,
             "feedback": feedback_callback is not None,
@@ -24,23 +25,42 @@ class RobotArmTrajectoryExecutor:
         }
         self._lock = threading.Lock()  # Lock for thread-safe access to shared resources
 
-    def _interpolate(self, t: float) -> List[float]:
-        for i in range(len(self.trajectory) - 1):
-            t0, q0 = self.trajectory[i]
-            t1, q1 = self.trajectory[i + 1]
-            if t0 <= t <= t1:
-                ratio = (t - t0) / (t1 - t0)
-                q_interp = np.array(q0) + ratio * (np.array(q1) - np.array(q0))
-                return q_interp.tolist()
-        return self.trajectory[-1][1]
+    def _interpolate(
+        self, t: float, traj: np.ndarray, times: np.ndarray
+    ) -> List[float]:
+        if t >= times[-1]:
+            return traj[-1].tolist()
+        idx = np.searchsorted(times, t, side="right") - 1
+        if idx < 0:
+            return traj[0].tolist()
+        t0, t1 = times[idx], times[idx + 1]
+        q0, q1 = traj[idx], traj[idx + 1]
+        ratio = (t - t0) / (t1 - t0)
+        return (q0 + ratio * (q1 - q0)).tolist()
 
     def execute(
         self,
         trajectory: List[Tuple[float, List[float]]],
     ):
+        if not trajectory:
+            return
+
+        # Copy trajectory to prevent external modifications
+        trajectory = [(t, q.copy()) for t, q in trajectory]
+
+        # Convert trajectory to NumPy arrays for efficiency
+        times = np.array([t for t, _ in trajectory])
+        traj = np.array([q for _, q in trajectory])
+
+        # Verify trajectory is sorted
+        if not np.all(times[:-1] <= times[1:]):
+            sorted_indices = np.argsort(times)
+            times = times[sorted_indices]
+            traj = traj[sorted_indices]
+
         start_time = time.time()
-        self.trajectory = sorted(trajectory, key=lambda x: x[0])
-        end_time = self.trajectory[-1][0]
+        end_time = times[-1]
+
         while True:
             current_time = time.time() - start_time
             if current_time > end_time:
