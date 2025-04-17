@@ -1,9 +1,14 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
       - id: black
-        args:
-          - --line-length=89
-          - .
-
+        args: [--line-length=88]
+        language_version: python3.10

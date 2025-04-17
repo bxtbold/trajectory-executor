@@ -1,12 +1,30 @@
 [project]
 name = "trajectory-executor"
 version = "0.1.0"
-description = "Add your description here"
+description = "A package for executing robot arm trajectories"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "genesis-world",
     "loop-rate-limiters>=1.1.0",
-    "mujoco>=3.2.4",
-    "numpy>=1.6.24",
+    "numpy>=1.26.4",
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-cov>=5.0.0",
+    "mujoco>=3.2.4",
+    "torch",
+    "genesis-world==0.2.1",
+]
+dev = [
+    "black>=24.8.0",
+    "flake8>=7.1.1",
+    "pre-commit>=3.8.0",
+    "trajectory-executor[test]",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
