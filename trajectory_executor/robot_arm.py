@@ -50,7 +50,9 @@ class RobotArmTrajectoryExecutor:
         }
         self._lock = threading.Lock()  # Lock for thread-safe access to shared resources
 
-    def _interpolate(self, t: float, traj: np.ndarray, times: np.ndarray) -> List[float]:
+    def _interpolate(
+        self, t: float, traj: np.ndarray, times: np.ndarray
+    ) -> List[float]:
         """Interpolates joint positions at a given time based on the trajectory.
 
         Args:
