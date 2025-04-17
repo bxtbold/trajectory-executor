@@ -6,9 +6,34 @@ import threading
 
 
 class RobotArmTrajectoryExecutor:
+    """Executes a trajectory for a robot arm with rate-limited updates and thread-safe callbacks.
+
+    This class manages the execution of a time-based joint trajectory for a robot arm. It interpolates
+    joint positions between trajectory points, invokes user-provided callbacks for updates and feedback,
+    and ensures thread-safe operations using a lock. The execution is rate-limited to a specified frequency.
+
+    Attributes:
+        update_callback (Callable[[List[float]], None]): Callback to send joint commands to the robot.
+        feedback_callback (Optional[Callable[[], List[float]]]): Callback to retrieve joint feedback.
+        on_feedback (Optional[Callable[[List[float], List[float], float], None]]): Callback to process
+            command, feedback, and time.
+        loop_rate (RateLimiter): Rate limiter to control update frequency.
+        trajectory (List): Current trajectory being executed (list of time and joint positions).
+        has_callbacks (dict): Tracks availability of callbacks.
+        _lock (threading.Lock): Lock for thread-safe callback execution.
+
+    Args:
+        update_callback (Callable[[List[float]], None]): Function to send joint commands to the robot.
+        feedback_callback (Optional[Callable[[], List[float]]], optional): Function to get joint feedback.
+            Defaults to None.
+        on_feedback (Optional[Callable[[List[float], List[float], float], None]], optional): Function to
+            handle command, feedback, and time. Defaults to None.
+        loop_rate_hz (float, optional): Frequency of updates in Hertz. Defaults to 50.0.
+    """
+
     def __init__(
         self,
-        update_callback: Optional[Callable[[List[float]], None]] = None,
+        update_callback: Callable[[List[float]], None],
         feedback_callback: Optional[Callable[[], List[float]]] = None,
         on_feedback: Optional[Callable[[List[float], List[float], float], None]] = None,
         loop_rate_hz: float = 50.0,
@@ -25,9 +50,17 @@ class RobotArmTrajectoryExecutor:
         }
         self._lock = threading.Lock()  # Lock for thread-safe access to shared resources
 
-    def _interpolate(
-        self, t: float, traj: np.ndarray, times: np.ndarray
-    ) -> List[float]:
+    def _interpolate(self, t: float, traj: np.ndarray, times: np.ndarray) -> List[float]:
+        """Interpolates joint positions at a given time based on the trajectory.
+
+        Args:
+            t (float): Current time for interpolation.
+            traj (np.ndarray): Array of joint positions in the trajectory.
+            times (np.ndarray): Array of time points corresponding to the trajectory.
+
+        Returns:
+            List[float]: Interpolated joint positions at time `t`.
+        """
         if t >= times[-1]:
             return traj[-1].tolist()
         idx = np.searchsorted(times, t, side="right") - 1
@@ -42,6 +75,19 @@ class RobotArmTrajectoryExecutor:
         self,
         trajectory: List[Tuple[float, List[float]]],
     ):
+        """Executes the provided trajectory by interpolating joint positions and invoking callbacks.
+
+        The trajectory is a list of tuples, each containing a time and a list of joint positions. The method
+        interpolates joint positions at the current time, sends commands via the update callback, and handles
+        feedback if provided. Execution is rate-limited and thread-safe.
+
+        Args:
+            trajectory (List[Tuple[float, List[float]]]): List of (time, joint_positions) tuples defining
+                the trajectory.
+
+        Returns:
+            None
+        """
         if not trajectory:
             return
 
@@ -85,31 +131,3 @@ class RobotArmTrajectoryExecutor:
         with self._lock:
             if self.has_callbacks["update"]:
                 self.update_callback(traj[-1].tolist())
-
-
-if __name__ == "__main__":
-    import random
-
-    # Simulated robot feedback: slowly follows the command with noise
-    current_pos = [0.0, 0.0, 0.0]
-
-    def fake_feedback():
-        return [q + random.uniform(-0.01, 0.01) for q in current_pos]
-
-    def send_command(q_cmd):
-        global current_pos
-        print(f"Command: {q_cmd}")
-        current_pos = q_cmd  # pretend robot follows instantly
-
-    def monitor(cmd, feedback, t):
-        error = np.linalg.norm(np.array(cmd) - np.array(feedback))
-        print(f"[{t:.2f}s] Error: {error:.4f}")
-
-    traj_executor = RobotArmTrajectoryExecutor(
-        update_callback=send_command,
-        feedback_callback=fake_feedback,
-        on_feedback=monitor,
-    )
-
-    traj = [(0.0, [0.0, 0.0, 0.0]), (1.5, [0.5, 0.5, 0.5]), (3.0, [1.0, 1.0, 1.0])]
-    traj_executor.execute(traj)
