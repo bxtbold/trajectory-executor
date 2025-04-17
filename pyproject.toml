@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "loop-rate-limiters>=1.1.0",
-    "numpy>=1.26.4",  # Corrected to a more recent version
+    "numpy>=1.26.4",
 ]
 
 [project.optional-dependencies]
@@ -15,6 +15,7 @@ test = [
     "pytest-mock>=3.14.0",
     "pytest-cov>=5.0.0",
     "mujoco>=3.2.4",
+    "torch",
     "genesis-world==0.2.1",
 ]
 dev = [
@@ -24,29 +25,6 @@ dev = [
     "trajectory-executor[test]",
 ]
 
-[tool.pre-commit]
-repos = [
-    { repo = "https://github.com/pre-commit/pre-commit-hooks", rev = "v4.6.0", hooks = [
-        { id = "trailing-whitespace" },
-        { id = "end-of-file-fixer" },
-        { id = "check-yaml" },
-    ]},
-    { repo = "https://github.com/psf/black", rev = "25.1.0", hooks = [
-        { id = "black" },
-    ]},
-    { repo = "local", hooks = [
-        { id = "pytest", name = "Run pytest", entry = "pytest", language = "system", types = ["python"], pass_filenames = false },
-    ]},
-]
-
-[tool.pytest.ini_options]
-addopts = "--cov=trajectory_executor --cov-report=html"
-testpaths = ["tests"]
-
 [tool.black]
 line-length = 88
 target-version = ["py310"]
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203"
