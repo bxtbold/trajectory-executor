@@ -37,7 +37,7 @@ def send_joint_command(cmd: List[float]):
 
 
 def get_joint_feedback() -> List[float]:
-    return ur5e.get_qpos()
+    return ur5e.get_qpos().cpu()
 
 
 def monitor(cmd, feedback, t):
@@ -65,11 +65,12 @@ viewer_t = threading.Thread(target=viewer_thread, daemon=True)
 viewer_t.start()
 
 # === 4. Define and execute a simple trajectory ===
-traj = [
-    (0.0, [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
-    (2.5, [0.0, -0.6, -0.5, -1.0, 0.8, 0.0]),
-    (5.0, [0.0, -1.01, -1.7, -1.82, 1.45, 0.0]),
+times = [0.0, 2.5, 5.0]
+points = [
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [0.0, -0.6, -0.5, -1.0, 0.8, 0.0],
+    [0.0, -1.01, -1.7, -1.82, 1.45, 0.0],
 ]
-executor.execute(traj)
+executor.execute(times=times, points=points)
 
 viewer_t.join()

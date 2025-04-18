@@ -26,5 +26,6 @@ executor = RobotArmTrajectoryExecutor(
     on_feedback=monitor,
 )
 
-traj = [(0.0, [0.0, 0.0, 0.0]), (1.5, [0.5, 0.5, 0.5]), (3.0, [1.0, 1.0, 1.0])]
-executor.execute(traj)
+times = [0.0, 1.5, 3.0]
+points = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [1.0, 1.0, 1.0]]
+executor.execute(points=points, times=times)
