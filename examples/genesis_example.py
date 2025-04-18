@@ -46,6 +46,7 @@ def monitor(cmd, feedback, t):
 
 
 executor = RobotArmTrajectoryExecutor(
+    dof=6,
     update_callback=send_joint_command,
     feedback_callback=get_joint_feedback,
     on_feedback=monitor,

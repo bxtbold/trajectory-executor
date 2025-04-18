@@ -13,6 +13,7 @@ class RobotArmTrajectoryExecutor:
     and ensures thread-safe operations using a lock. The execution is rate-limited to a specified frequency.
 
     Args:
+        dof (int): Number of degrees of freedom.
         update_callback (Callable[[np.ndarray], None]): Function to send joint commands to the robot.
         feedback_callback (Optional[Callable[[], np.ndarray]], optional): Function to get joint feedback.
             Defaults to None.
@@ -23,11 +24,13 @@ class RobotArmTrajectoryExecutor:
 
     def __init__(
         self,
+        dof: int,
         update_callback: Callable[[np.ndarray], None],
         feedback_callback: Optional[Callable[[], np.ndarray]] = None,
         on_feedback: Optional[Callable[[np.ndarray, np.ndarray, float], None]] = None,
         loop_rate_hz: float = 50.0,
     ):
+        self.dof = dof
         self.update_callback = update_callback
         self.feedback_callback = feedback_callback
         self.on_feedback = on_feedback
@@ -85,6 +88,10 @@ class RobotArmTrajectoryExecutor:
             raise IndexError("points and times must have the same number of elements")
         if points.ndim != 2 or times.ndim != 1:
             raise IndexError("points must be a 2D array and times must be a 1D array")
+        if points.shape[1] != self.dof:
+            raise IndexError(
+                f"points must have {self.dof} columns, but got {points.shape[1]}"
+            )
 
         # Verify trajectory is sorted
         if not np.all(times[:-1] <= times[1:]):
