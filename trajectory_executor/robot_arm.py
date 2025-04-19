@@ -84,10 +84,12 @@ class RobotArmTrajectoryExecutor:
         if not isinstance(times, np.ndarray):
             times = np.array(times, dtype=np.float64)
 
-        if points.shape[0] != times.shape[0]:
-            raise IndexError("points and times must have the same number of elements")
+        if points.size == 0 or times.size == 0:
+            return
         if points.ndim != 2 or times.ndim != 1:
             raise IndexError("points must be a 2D array and times must be a 1D array")
+        if points.shape[0] != times.shape[0]:
+            raise IndexError("points and times must have the same number of elements")
         if points.shape[1] != self.dof:
             raise IndexError(
                 f"points must have {self.dof} columns, but got {points.shape[1]}"
