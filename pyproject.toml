@@ -1,9 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "trajectory-executor"
 version = "0.1.0"
-description = "A package for executing robot arm trajectories"
+description = "Execute time-based joint trajectories for robot arms with rate-limited, thread-safe updates"
 readme = "README.md"
 requires-python = ">=3.10"
+authors = [
+    { name = "bxtbold", email = "bxtbold@protonmail.com" },
+]
+license = { text = "MIT License" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Robotics",
+]
 dependencies = [
     "loop-rate-limiters>=1.1.0",
     "numpy>=1.26.4",
@@ -25,6 +43,8 @@ dev = [
     "trajectory-executor[test]",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ["py310"]
+[project.urls]
+Homepage = "https://github.com/bxtbold/trajectory-executor"
+Documentation = "https://bxtbold.github.io/trajectory-executor"
+Repository = "https://github.com/bxtbold/trajectory-executor"
+Issues = "https://github.com/bxtbold/trajectory-executor/issues"
