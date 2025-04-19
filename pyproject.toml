@@ -20,7 +20,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Robotics",
+    "Framework :: Robot Framework :: Tool",
 ]
 dependencies = [
     "loop-rate-limiters>=1.1.0",
