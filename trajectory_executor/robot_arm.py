@@ -34,7 +34,7 @@ class RobotArmTrajectoryExecutor:
         self.update_callback = update_callback
         self.feedback_callback = feedback_callback
         self.on_feedback = on_feedback
-        self.loop_rate = RateLimiter(loop_rate_hz)
+        self.loop_rate_hz = loop_rate_hz
         self.has_callbacks = {
             "update": update_callback is not None,
             "feedback": feedback_callback is not None,
@@ -102,6 +102,7 @@ class RobotArmTrajectoryExecutor:
         start_time = time.time()
         end_time = times[-1]
 
+        loop_rate = RateLimiter(self.loop_rate_hz)
         while True:
             current_time = time.time() - start_time
             if current_time > end_time:
@@ -120,7 +121,7 @@ class RobotArmTrajectoryExecutor:
                     joint_feedback = self.feedback_callback()
                     self.on_feedback(joint_cmd, joint_feedback, current_time)
 
-            self.loop_rate.sleep()
+            loop_rate.sleep()
 
         # Send final command thread-safely
         with self._lock:
