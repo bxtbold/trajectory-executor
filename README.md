@@ -1,7 +1,7 @@
 # trajectory-executor
 
-<!-- [![Build](https://img.shields.io/github/actions/workflow/status/bxtbold/trajectory-executor/ci.yml?branch=main)](https://github.com/bxtbold/trajectory-executor/actions) -->
-<!-- [![PyPI version](https://img.shields.io/pypi/v/trajectory-executor)](https://pypi.org/project/trajectory-executor/) -->
+[![Build](https://img.shields.io/github/actions/workflow/status/bxtbold/trajectory-executor/ci.yml?branch=main)](https://github.com/bxtbold/trajectory-executor/actions)
+[![PyPI version](https://img.shields.io/pypi/v/trajectory-executor)](https://pypi.org/project/trajectory-executor/)
 <!-- [![Documentation](https://img.shields.io/github/actions/workflow/status/bxtbold/trajectory-executor/docs.yml?branch=main&label=docs)](https://bxtbold.github.io/trajectory-executor/) -->
 
 Execute time-based joint trajectories for robot arms with rate-limited, thread-safe updates.
@@ -32,7 +32,7 @@ The `RobotArmTrajectoryExecutor` class executes joint trajectories for a robot a
 
 ```python
 import numpy as np
-from trajectory-executor import RobotArmTrajectoryExecutor
+from trajectory_executor import RobotArmTrajectoryExecutor
 
 def update_callback(joints: np.ndarray):
     print(f"Joint command: {joints}")
