@@ -8,10 +8,16 @@ Execute time-based joint trajectories for robot arms with rate-limited, thread-s
 
 ## Installation
 
-### From PyPI
+```console
+pip install trajectory-executor
+```
+
+or
 
 ```console
-TODO
+git clone https://github.com/bxtbold/trajectory-executor.git
+cd trajectory-executor
+pip install -e .
 ```
 
 ### Dependencies
