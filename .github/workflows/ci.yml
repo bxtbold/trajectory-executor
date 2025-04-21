@@ -25,4 +25,4 @@ jobs:
     - name: Run tests
       run: |
         pip install pytest
-        pytest tests/test_robot_arm_trajectory_executor.py -v
+        pytest tests/test_trajectory_executor.py -v
