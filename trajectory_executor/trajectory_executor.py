@@ -65,7 +65,9 @@ class TrajectoryExecutor:
         ratio = (t - t0) / (t1 - t0)
         return q0 + ratio * (q1 - q0)
 
-    def execute(self, points: np.ndarray, times: np.ndarray, wait_until_done: bool = True):
+    def execute(
+        self, points: np.ndarray, times: np.ndarray, wait_until_done: bool = True
+    ):
         """Executes the provided trajectory by interpolating points and invoking callbacks.
 
         The trajectory is array of points and correspoding time to reach to the point. The method

@@ -29,9 +29,11 @@ for new_time in np.linspace(0, trajectory.duration, 10):
     times.append(new_time)
     positions.append(pos)
 
+
 # === 3. Define callback and trajectory executor ===
 def update_callback(target_state):
     print(f"Target position: {target_state}")
+
 
 executor = TrajectoryExecutor(
     dof=trajectory.degrees_of_freedom,
