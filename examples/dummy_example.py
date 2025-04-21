@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from trajectory_executor import RobotArmTrajectoryExecutor
+from trajectory_executor import TrajectoryExecutor
 
 
 current_pos = [0.0, 0.0, 0.0]
@@ -20,7 +20,7 @@ def monitor(cmd, feedback, t):
     print(f"[{t:.2f}s] Error: {error:.4f}")
 
 
-executor = RobotArmTrajectoryExecutor(
+executor = TrajectoryExecutor(
     dof=3,
     update_callback=send_command,
     feedback_callback=dummy_feedback,

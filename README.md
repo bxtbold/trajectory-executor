@@ -28,16 +28,16 @@ pip install -e .
 
 ## Usage
 
-The `RobotArmTrajectoryExecutor` class executes joint trajectories for a robot arm with specified degrees of freedom (DOF). It interpolates positions, sends commands via a callback, and supports optional feedback processing.
+The `TrajectoryExecutor` class executes joint trajectories for a robot arm with specified degrees of freedom (DOF). It interpolates positions, sends commands via a callback, and supports optional feedback processing.
 
 ```python
 import numpy as np
-from trajectory_executor import RobotArmTrajectoryExecutor
+from trajectory_executor import TrajectoryExecutor
 
 def update_callback(joints: np.ndarray):
     print(f"Joint command: {joints}")
 
-executor = RobotArmTrajectoryExecutor(dof=3, update_callback=update_callback)
+executor = TrajectoryExecutor(dof=3, update_callback=update_callback)
 points = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
 times = np.array([0.0, 1.0])
 executor.execute(points, times)

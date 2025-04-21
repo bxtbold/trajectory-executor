@@ -5,7 +5,7 @@ import time
 import torch
 from typing import List
 
-from trajectory_executor import RobotArmTrajectoryExecutor
+from trajectory_executor import TrajectoryExecutor
 
 
 # === 1. Initialize Genesis ===
@@ -45,7 +45,7 @@ def monitor(cmd, feedback, t):
     print(f"[{t:.2f}s] Tracking error: {error:.4f}")
 
 
-executor = RobotArmTrajectoryExecutor(
+executor = TrajectoryExecutor(
     dof=6,
     update_callback=send_joint_command,
     feedback_callback=get_joint_feedback,

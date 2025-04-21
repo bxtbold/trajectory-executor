@@ -1,1 +1,1 @@
-from .robot_arm import RobotArmTrajectoryExecutor
+from .trajectory_executor import TrajectoryExecutor

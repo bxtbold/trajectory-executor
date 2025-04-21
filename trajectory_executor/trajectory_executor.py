@@ -5,17 +5,17 @@ from typing import Callable, Optional
 from loop_rate_limiters import RateLimiter
 
 
-class RobotArmTrajectoryExecutor:
-    """Executes a trajectory for a robot arm with rate-limited updates and thread-safe callbacks.
+class TrajectoryExecutor:
+    """Executes a trajectory with rate-limited updates and thread-safe callbacks.
 
-    This class manages the execution of a time-based joint trajectory for a robot arm. It interpolates
-    joint positions between trajectory points, invokes user-provided callbacks for updates and feedback,
+    This class manages the execution of a time-based trajectory. It interpolates
+    positions between trajectory points, invokes user-provided callbacks for updates and feedback,
     and ensures thread-safe operations using a lock. The execution is rate-limited to a specified frequency.
 
     Args:
         dof (int): Number of degrees of freedom.
-        update_callback (Callable[[np.ndarray], None]): Function to send joint commands to the robot.
-        feedback_callback (Optional[Callable[[], np.ndarray]], optional): Function to get joint feedback.
+        update_callback (Callable[[np.ndarray], None]): Function to send commands to the robot.
+        feedback_callback (Optional[Callable[[], np.ndarray]], optional): Function to get feedback.
             Defaults to None.
         on_feedback (Optional[Callable[[np.ndarray, np.ndarray, float], None]], optional): Function to
             handle command, feedback, and time. Defaults to None.
@@ -65,16 +65,17 @@ class RobotArmTrajectoryExecutor:
         ratio = (t - t0) / (t1 - t0)
         return q0 + ratio * (q1 - q0)
 
-    def execute(self, points: np.ndarray, times: np.ndarray):
+    def execute(self, points: np.ndarray, times: np.ndarray, wait_until_done: bool = True):
         """Executes the provided trajectory by interpolating points and invoking callbacks.
 
         The trajectory is array of points and correspoding time to reach to the point. The method
-        interpolates joint positions at the current time, sends commands via the update callback, and handles
+        interpolates positions at the current time, sends commands via the update callback, and handles
         feedback if provided. Execution is rate-limited and thread-safe.
 
         Args:
             points (np.ndarray): Trajectory points to be executed.
             times (np.ndarray): Time each point to be executed.
+            wait_until_done (bool, optional): If True, waits until the trajectory is fully executed.
 
         Returns:
             None
@@ -119,8 +120,9 @@ class RobotArmTrajectoryExecutor:
                     self.update_callback(target_state)
 
                 # Handle feedback
-                if self.has_callbacks["feedback"] and self.has_callbacks["on_feedback"]:
+                if self.has_callbacks["feedback"]:
                     current_state = self.feedback_callback()
+                if self.has_callbacks["on_feedback"]:
                     self.on_feedback(target_state, current_state, current_time)
 
             loop_rate.sleep()

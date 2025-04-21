@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import time
 import threading
-from trajectory_executor import RobotArmTrajectoryExecutor
+from trajectory_executor import TrajectoryExecutor
 
 
 # Mock RateLimiter class
@@ -21,7 +21,7 @@ def executor():
     def update_callback(joints: np.ndarray):
         pass  # Default no-op callback
 
-    return RobotArmTrajectoryExecutor(
+    return TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
 
@@ -37,7 +37,7 @@ def test_init_valid():
     def on_feedback(cmd: np.ndarray, fb: np.ndarray, t: float):
         pass
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=2,
         update_callback=update_callback,
         feedback_callback=feedback_callback,
@@ -52,7 +52,7 @@ def test_init_valid():
 
 
 def test_init_no_callbacks():
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=lambda x: None, feedback_callback=None, on_feedback=None
     )
     assert executor.has_callbacks["update"] is True
@@ -104,7 +104,7 @@ def test_execute_single_point():
     def update_callback(joints: np.ndarray):
         commands.append(joints.copy())
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
     executor.loop_rate = MockRateLimiter(100.0)
@@ -121,7 +121,7 @@ def test_execute_multiple_points():
     def update_callback(joints: np.ndarray):
         commands.append(joints.copy())
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
     executor.loop_rate = MockRateLimiter(100.0)
@@ -139,7 +139,7 @@ def test_execute_unsorted_times():
     def update_callback(joints: np.ndarray):
         commands.append(joints.copy())
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
     executor.loop_rate = MockRateLimiter(100.0)
@@ -166,7 +166,7 @@ def test_execute_with_feedback():
         feedbacks.append(fb.copy())
         times_recorded.append(t)
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3,
         update_callback=update_callback,
         feedback_callback=feedback_callback,
@@ -192,7 +192,7 @@ def test_execute_thread_safety():
         with lock:
             commands.append(joints.copy())
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
     executor.loop_rate = MockRateLimiter(100.0)
@@ -238,10 +238,10 @@ def test_execute_wrong_dof(executor):
 def test_execute_non_numpy_input():
     commands = []
 
-    def update_callback(joints: np.ndarray):
-        commands.append(joints.copy())
+    def update_callback(command: np.ndarray):
+        commands.append(command.copy())
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
     executor.loop_rate = MockRateLimiter(100.0)
@@ -260,7 +260,7 @@ def test_execute_rate_limited():
     def update_callback(joints: np.ndarray):
         start_times.append(time.time())
 
-    executor = RobotArmTrajectoryExecutor(
+    executor = TrajectoryExecutor(
         dof=3, update_callback=update_callback, loop_rate_hz=100.0
     )
     executor.loop_rate = MockRateLimiter(100.0)
