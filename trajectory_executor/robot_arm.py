@@ -110,18 +110,18 @@ class RobotArmTrajectoryExecutor:
             if current_time > end_time:
                 break
 
-            # Compute command
-            joint_cmd = self._interpolate(current_time, points, times)
+            # Interpolate target state
+            target_state = self._interpolate(current_time, points, times)
 
             # Thread-safe callback execution
             with self._lock:
                 if self.has_callbacks["update"]:
-                    self.update_callback(joint_cmd)
+                    self.update_callback(target_state)
 
                 # Handle feedback
                 if self.has_callbacks["feedback"] and self.has_callbacks["on_feedback"]:
-                    joint_feedback = self.feedback_callback()
-                    self.on_feedback(joint_cmd, joint_feedback, current_time)
+                    current_state = self.feedback_callback()
+                    self.on_feedback(target_state, current_state, current_time)
 
             loop_rate.sleep()
 
