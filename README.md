@@ -4,7 +4,16 @@
 [![PyPI version](https://img.shields.io/pypi/v/trajectory-executor)](https://pypi.org/project/trajectory-executor/)
 <!-- [![Documentation](https://img.shields.io/github/actions/workflow/status/bxtbold/trajectory-executor/docs.yml?branch=main&label=docs)](https://bxtbold.github.io/trajectory-executor/) -->
 
-Execute time-based joint trajectories for robot arms with rate-limited, thread-safe updates.
+A lightweight executor for offline, time-based joint trajectories in robotic applications.
+Supports smooth interpolation between waypoints, callback-based control, and optional feedback monitoring.
+
+## Features
+
+- Time-parameterized trajectory execution
+- Linear interpolation between joint waypoints
+- Rate-limited command publishing
+- Thread-safe callbacks for sending commands and receiving feedback
+- Minimal dependencies, easy to integrate
 
 ## Installation
 
@@ -25,6 +34,15 @@ pip install -e .
 - Python 3.10+
 - `numpy` (>=1.20.0)
 - `loop-rate-limiters` (>=0.1.0)
+
+## Examples
+
+Explore usage examples integrated with different systems:
+
+- [Basic example](examples/dummy_example.py)
+- [Genesis example](examples/genesis_example.py)
+- [Mujoco example](examples/mujoco_example.py)
+- [Ruckig example](examples/ruckig_example.py)
 
 ## Usage
 

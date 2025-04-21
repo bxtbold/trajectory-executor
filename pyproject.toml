@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trajectory-executor"
-version = "0.1.1"
-description = "Execute time-based joint trajectories for robot arms with rate-limited, thread-safe updates"
+version = "0.2.0"
+description = "A lightweight executor for offline, time-based joint trajectories in robotic applications."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
@@ -45,6 +45,5 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/bxtbold/trajectory-executor"
-Documentation = "https://bxtbold.github.io/trajectory-executor"
 Repository = "https://github.com/bxtbold/trajectory-executor"
 Issues = "https://github.com/bxtbold/trajectory-executor/issues"
